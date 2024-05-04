@@ -1,0 +1,70 @@
+{
+    "project_name": "LLM_Text_Generation",
+    "run_name": "Demo Run",
+    "run_description": "Demo summarization LLM chain",
+    "modules": {
+        "loader": {
+            "class_": "data.load.HFDatasetLoader",
+            "params_": {
+                "dataset_name": "Salesforce/dialogstudio",
+                "subset_name": "TweetSumm",
+                "system_prompt": "Please summarize the conversation."
+            }
+        },
+        "model": {
+            "class_": "models.llm.CausalLLModel",
+            "params_": {
+                "bnb_cfg": {
+                    "load_in_4bit": true,
+                    "bnb_4bit_quant_type": "nf4",
+                    "bnb_4bit_compute_dtype": "float16"
+                },
+                "model_cfg": {
+                    "pretrained_model_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                    "use_safetensors": true,
+                    "trust_remote_code": true,
+                    "device_map": "auto"
+                },
+                "lora_cfg": {
+                    "r": 8,
+                    "lora_alpha": 32,
+                    "lora_dropout": 0.1,
+                    "target_modules": [
+                        "q_proj",
+                        "up_proj",
+                        "o_proj",
+                        "k_proj",
+                        "down_proj",
+                        "gate_proj",
+                        "v_proj"
+                    ],
+                    "bias": "none",
+                    "task_type": "CAUSAL_LM"
+                }
+            }
+        },
+        "trainer": {
+            "class_": "models.train.CausalLMTrainer",
+            "params_": {
+                "per_device_train_batch_size": 1,
+                "gradient_accumulation_steps": 2,
+                "optim": "paged_adamw_8bit",
+                "logging_steps": 1,
+                "learning_rate": 1e-4,
+                "fp16": false,
+                "max_grad_norm": 0.3,
+                "num_train_epochs": 3,
+                "evaluation_strategy": "steps",
+                "eval_steps": 0.2,
+                "warmup_ratio": 0.05,
+                "save_strategy": "epoch",
+                "group_by_length": true,
+                "output_dir": "./little-llama-ft-summarize",
+                "report_to": "tensorboard",
+                "save_safetensors": true,
+                "lr_scheduler_type": "cosine",
+                "seed": 42
+            }
+        }
+    }
+}
