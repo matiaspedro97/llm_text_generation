@@ -3,10 +3,9 @@
 
 # hard dependencies
 pip==21.3.1
-torch==2.1.0 
---index-url https://download.pytorch.org/whl/cu118
+torch==2.1.0 --index-url https://download.pytorch.org/whl/cu121
 
-transformers==4.40.1
+transformers==4.38.2
 #git+https://github.com/huggingface/transformers
 datasets==2.19.0
 peft==0.5.0

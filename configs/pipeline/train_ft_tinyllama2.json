@@ -1,0 +1,69 @@
+{
+    "project_name": "LLM_Text_Generation",
+    "run_name": "Demo Run",
+    "run_description": "Demo summarization LLM chain",
+    "modules": {
+        "loader": {
+            "class_": "data.load.QADatasetLoader",
+            "params_": {
+                "dataset_name": "rajpurkar/squad",
+                "system_prompt": "Please answer to the question based on the context information provided. If you don't know the answer, please just say you don't know it, don't try to make an answer from that."
+            }
+        },
+        "model": {
+            "class_": "models.llm.CausalLLModel",
+            "params_": {
+                "bnb_cfg": {
+                    "load_in_4bit": true,
+                    "bnb_4bit_quant_type": "nf4",
+                    "bnb_4bit_compute_dtype": "float16"
+                },
+                "model_cfg": {
+                    "pretrained_model_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                    "use_safetensors": true,
+                    "trust_remote_code": true,
+                    "device_map": "auto"
+                },
+                "lora_cfg": {
+                    "r": 8,
+                    "lora_alpha": 32,
+                    "lora_dropout": 0.1,
+                    "target_modules": [
+                        "q_proj",
+                        "up_proj",
+                        "o_proj",
+                        "k_proj",
+                        "down_proj",
+                        "gate_proj",
+                        "v_proj"
+                    ],
+                    "bias": "none",
+                    "task_type": "CAUSAL_LM"
+                }
+            }
+        },
+        "trainer": {
+            "class_": "models.train.CausalLMTrainer",
+            "params_": {
+                "per_device_train_batch_size": 1,
+                "gradient_accumulation_steps": 4,
+                "optim": "paged_adamw_8bit",
+                "logging_steps": 1,
+                "learning_rate": 1e-4,
+                "fp16": false,
+                "max_grad_norm": 0.3,
+                "num_train_epochs": 1,
+                "evaluation_strategy": "steps",
+                "eval_steps": 0.2,
+                "warmup_ratio": 0.05,
+                "save_strategy": "epoch",
+                "group_by_length": true,
+                "output_dir": "./little-llama2-ft-qa",
+                "report_to": "tensorboard",
+                "save_safetensors": true,
+                "lr_scheduler_type": "cosine",
+                "seed": 42
+            }
+        }
+    }
+}
