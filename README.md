@@ -65,7 +65,7 @@ To setup the environment, you should build two distinct virtual environment: (1)
 
 ## 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/LLM_TEXT_GENERATION.git
+git clone https://github.com/matiaspedro97/llm_text_generation
 ```
 
 #### 2. Setup the Conda enviroment
